@@ -1,18 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-typedef struct {
-    char *name;
-    int grade_count;
-    int *grades;
-} Student;
-
-typedef struct {
-    char *name;
-    char *info;
-    int args;
-} Command;
+#include <types.h>
 
 int student_count;
 Student *students;
@@ -170,37 +159,18 @@ void remove_grade(char *name, int grade) {
     }
 }
 
-void get_command(char *command, char *student, int *grade) {
+int get_command(char *command) {
     scanf("%s", command);
 
-    int found = 0;
     Command current_command = {};
     for (int i = 0; i < sizeof(COMMANDS)/sizeof(Command); i++) {
         if (strcmp(command, COMMANDS[i].name) == 0) {
             current_command = COMMANDS[i];
-            found = 1;
-            break;
+            return;
         };
     }
-    if (!found) {
-        printf("\nDidn't find command, please try again.\n");
-        get_command(command, student, grade);
-    }
-
-    for (int i = 0; i < current_command.args; i++) {
-        switch (i) {
-            case 0:
-                printf("\nWho would you like to affect?\n");
-                scanf("%s", student);
-                break;
-            case 1:
-                printf("\nWhat grade would you like to add or remove?\n");
-                scanf("%d", grade);
-                break;
-            default:
-                break; 
-        }
-    }
+    printf("\nDidn't find command, please try again.\n");
+    get_command(command);
 }
 
 void handle_commands() {
