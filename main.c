@@ -1,12 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
 #include "types.h"
 
-int studentCount;
+
+int student_count;
 Student *students;
+
 const int COMMAND_COUNT = 7;
 const Command COMMANDS[] = {
+
     {"cmds", "- Shows list of commands", 0},
     {"exit", "- Exits", 0},
     {"list", "- Shows a list of students", 0},
@@ -18,6 +22,7 @@ const Command COMMANDS[] = {
 
 
 
+
 void print_cmds() {
     for (int i = 0; i < COMMAND_COUNT; i++) {
         printf("- %s %s\n", COMMANDS[i].name, COMMANDS[i].info);
@@ -25,28 +30,29 @@ void print_cmds() {
 }
 
 void list() {
-    for (int i = 0; i < studentCount; i++) {
+    for (int i = 0; i < student_count; i++) {
         printf("Name: %s | Grades: ", students[i].name);
 
-        int gradeCount = students[i].gradeCount;
+        int grade_count = students[i].grade_count;
         float average = 0;
-        if (gradeCount > 0) {
-            for (int j = 0; j < gradeCount; j++) {
-                int currentGrade = students[i].grades[j];
-                average += currentGrade;
-                printf("%d", currentGrade);
-                if (j != gradeCount-1) {
+        if (grade_count > 0) {
+            for (int j = 0; j < grade_count; j++) {
+                int current_grade = students[i].grades[j];
+                average += current_grade;
+                printf("%d", current_grade);
+                if (j != grade_count-1) {
                     printf(", ");
                 }
             }
-            average /= gradeCount;
+            average /= grade_count;
         }
         printf(" | Average: %f\n", average);
     }
 }
 
 int student_exists(char *name) {
-    for (int i = 0; i < studentCount; i++) {
+
+    for (int i = 0; i < student_count; i++) {
         if (strcmp(name, students[i].name) == 0) {
             return 1;
         }
@@ -59,7 +65,7 @@ void add_student(char *name) {
         printf("Student already exists.\n");
         return;
     }
-    int bytes = sizeof(Student)*studentCount;
+    int bytes = sizeof(Student)*student_count;
     Student *tmp = malloc(bytes);
     memcpy(tmp, students, bytes);
     students = malloc(bytes+sizeof(Student));
@@ -67,8 +73,8 @@ void add_student(char *name) {
     free(tmp);
 
     Student student = {name};
-    students[studentCount] = student;
-    studentCount++;
+    students[student_count] = student;
+    student_count++;
 }
 
 void remove_student(char *name) {
@@ -76,14 +82,14 @@ void remove_student(char *name) {
         printf("Student doesn't exist.\n");
         return;
     }
-    for (int i = 0; i < studentCount; i++) {
+    for (int i = 0; i < student_count; i++) {
         if (strcmp(name, students[i].name) == 0) {
-            int bytes = sizeof(Student)*studentCount;
+            int bytes = sizeof(Student)*student_count;
             Student *tmp = malloc(bytes);
             memcpy(tmp, students, bytes);
             Student *_ = realloc(students, bytes-sizeof(Student));
             int found = 0;
-            for (int j = 0; j < studentCount; j++) {
+            for (int j = 0; j < student_count; j++) {
                 if (j == i) {
                     found++;
                     continue;
@@ -91,7 +97,7 @@ void remove_student(char *name) {
                 students[j-found] = tmp[j];
             }
             free(tmp);
-            studentCount--;
+            student_count--;
             break;
         }
     }
@@ -106,17 +112,17 @@ void add_grade(char *name, int grade) {
         printf("Invalid grade.\n");
         return;
     }
-    for (int i = 0; i < studentCount; i++) {
+    for (int i = 0; i < student_count; i++) {
         if (strcmp(name, students[i].name) == 0) {
-            int bytes = sizeof(int)*students[i].gradeCount;
+            int bytes = sizeof(int)*students[i].grade_count;
             int *tmp = malloc(bytes);
             memcpy(tmp, students[i].grades, bytes);
             students[i].grades = malloc(bytes+sizeof(int));
             memcpy(students[i].grades, tmp, bytes);
             free(tmp);
 
-            students[i].grades[students[i].gradeCount] = grade;
-            students[i].gradeCount++;
+            students[i].grades[students[i].grade_count] = grade;
+            students[i].grade_count++;
             break;
         }
     }
@@ -131,10 +137,10 @@ void remove_grade(char *name, int grade) {
         printf("Invalid grade.\n");
         return;
     }
-    for (int i = 0; i < studentCount; i++) {
+    for (int i = 0; i < student_count; i++) {
         if (strcmp(name, students[i].name) == 0) {
             int exists = 0;
-            for (int j = 0; j < students[i].gradeCount; j++) {
+            for (int j = 0; j < students[i].grade_count; j++) {
                 if (students[i].grades[j] == grade) {
                     exists = 1;
                 }
@@ -143,13 +149,14 @@ void remove_grade(char *name, int grade) {
                 printf("Grade not found.\n");
                 return;
             }
-            // call it student_grade_size
-            int bytes = sizeof(int)*students[i].gradeCount;
+
+
+            int bytes = sizeof(int)*students[i].grade_count;
             int *tmp = malloc(bytes);
             memcpy(tmp, students[i].grades, bytes);
             int *_ = realloc(students[i].grades, bytes-sizeof(int));
             int found = 0;
-            for (int j = 0; j < students[i].gradeCount; j++) {
+            for (int j = 0; j < students[i].grade_count; j++) {
                 if (students[i].grades[j] == grade && !found) {
                     found = 1;
                     continue;
@@ -157,11 +164,12 @@ void remove_grade(char *name, int grade) {
                 students[i].grades[j-found] = tmp[j];
             }
             free(tmp);
-            students[i].gradeCount--;
+            students[i].grade_count--;
             break;
         }
     }
 }
+
 // This is essentially not wrong but I would create Enum of commands
 // so this can return int
 //by this way it would be much simpler to find the right operation for the command
@@ -174,6 +182,7 @@ void get_cmd(char *command, char *student, int *grade) {
     for (int i = 0; i < COMMAND_COUNT; i++) {
         if (strcmp(command, COMMANDS[i].name) == 0) {
             currect_command = COMMANDS[i];
+
             found = 1;
             break;
         };
@@ -182,8 +191,6 @@ void get_cmd(char *command, char *student, int *grade) {
         printf("\nDidn't find command, please try again.\n");
         get_cmd(command, student, grade);
     }
-
-
     for (int i = 0; i < currect_command.args; i++) {
         switch (i) {
             case 0:
@@ -200,6 +207,7 @@ void get_cmd(char *command, char *student, int *grade) {
         }
     }
 }
+
 
 void handle_command() {
     char command[20];
@@ -224,12 +232,15 @@ void handle_command() {
         remove_grade(student, grade);
     }
     printf("\n");
+
     // might not be essentially wrong, but stack overflow could happen
     handle_command();
+
 }
 
 int main() {
     printf("What would you like to do? (Type 'cmds' for a list of commands)\n\n");
+
     handle_command();
     return 0;
 }
