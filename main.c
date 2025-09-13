@@ -25,8 +25,12 @@ void print_cmds() {
 }
 
 void list() {
+    if (!student_count) {
+        printf("# Student list is empty.\n");
+        return;
+    }
     for (int i = 0; i < student_count; i++) {
-        printf("Name: %s | Grades: ", students[i].name);
+        printf("# Name: %s | Grades: ", students[i].name);
 
         int grade_count = students[i].grade_count;
         float average = 0;
@@ -57,12 +61,12 @@ int student_exists(char *name) {
 void add_student() {
     char *name = strtok(NULL, " ");
     if (name == NULL) {
-        printf("Name can not be null.\n");
+        printf("# Name can not be null.\n");
         return;
     }
 
     if (student_exists(name)) {
-        printf("Student already exists.\n");
+        printf("# Student already exists.\n");
         return;
     }
     int bytes = sizeof(Student)*student_count;
@@ -76,18 +80,18 @@ void add_student() {
     students[student_count] = student;
     student_count++;
 
-    printf("Added student\n");
+    printf("# Added student.\n");
 }
 
 void remove_student() {
     char *name = strtok(NULL, " ");
     if (name == NULL) {
-        printf("Name can not be null.\n");
+        printf("# Name can not be null.\n");
         return;
     }
 
     if (!student_exists(name)) {
-        printf("Student doesn't exist.\n");
+        printf("# Student doesn't exist.\n");
         return;
     }
     for (int i = 0; i < student_count; i++) {
@@ -110,28 +114,28 @@ void remove_student() {
         }
     }
 
-    printf("Removed student\n");
+    printf("# Removed student.\n");
 }
 
 void add_grade() {
     char *name = strtok(NULL, " ");
     if (name == NULL) {
-        printf("Name can not be null.\n");
+        printf("# Name can not be null.\n");
         return;
     }
     char *char_grade = strtok(NULL, " ");
     if (char_grade == NULL) {
-        printf("Grade can not be null.\n");
+        printf("# Grade can not be null.\n");
         return;
     }
     int grade = char_grade[0] - '0';
 
     if (!student_exists(name)) {
-        printf("Student doesn't exist.\n");
+        printf("# Student doesn't exist.\n");
         return;
     }
     if (grade < 1 || grade > 5) {
-        printf("Invalid grade.\n");
+        printf("# Invalid grade.\n");
         return;
     }
     for (int i = 0; i < student_count; i++) {
@@ -148,28 +152,28 @@ void add_grade() {
             break;
         }
     }
-    printf("Added grade\n");
+    printf("# Added grade.\n");
 }
 
 void remove_grade() {
     char *name = strtok(NULL, " ");
     if (name == NULL) {
-        printf("Name can not be null.\n");
+        printf("# Name can not be null.\n");
         return;
     }
     char *char_grade = strtok(NULL, " ");
     if (char_grade == NULL) {
-        printf("Grade can not be null.\n");
+        printf("# Grade can not be null.\n");
         return;
     }
     int grade = char_grade[0] - '0';
 
     if (!student_exists(name)) {
-        printf("Student doesn't exist.\n");
+        printf("# Student doesn't exist.\n");
         return;
     }
     if (grade < 1 || grade > 5) {
-        printf("Invalid grade.\n");
+        printf("# Invalid grade.\n");
         return;
     }
     for (int i = 0; i < student_count; i++) {
@@ -181,7 +185,7 @@ void remove_grade() {
                 }
             }
             if (!exists) {
-                printf("Grade not found.\n");
+                printf("# Grade not found.\n");
                 return;
             }
 
@@ -203,14 +207,18 @@ void remove_grade() {
             break;
         }
     }
-    printf("Removed grade\n");
+    printf("# Removed grade.\n");
 }
 
-Command get_command(char *command) {
+void get_command(char *command) {
     fgets(command, INPUT_BUFFER, stdin);
     for (int i = 0; i < INPUT_BUFFER; i++) {
-        if (!strcmp(&command[i], "\n")) {
+        if ((command[i] == ' ' && !i ) || command[i] == '\n') {
             command[i] = 0;
+            if (!i) {
+                printf("\n");
+                return;
+            };
         }
     }
 
@@ -218,43 +226,33 @@ Command get_command(char *command) {
 
     for (int i = 0; i < sizeof(COMMANDS)/sizeof(Command); i++) {
         if (!strcmp(command, COMMANDS[i].name)) {
-            return COMMANDS[i];
+            return;
         };
     }
-    printf("\nDidn't find command, please try again.\n");
-    for (int i = 0; i < INPUT_BUFFER; i++) {
-        command[i] = 0;
-    }
+    printf("# Didn't find command, please try again.\n\n");
     get_command(command);
 }
 
 void handle_command() {
     char command[INPUT_BUFFER];
     get_command(command);
-    
-    if (!strcmp(command, "list")) {
-        list();
-    } else if (!strcmp(command, "cmds")) {
-        print_cmds();
-    } else if (!strcmp(command, "exit")) {
+
+    if (!strcmp(command, "exit")) {
         return;
-    } else if (!strcmp(command, "add_student")) {
-        add_student();
-    } else if (!strcmp(command, "remove_student")) {
-        remove_student();
-    } else if (!strcmp(command, "add_grade")) {
-        add_grade();
-    } else if (!strcmp(command, "remove_grade")) {
-        remove_grade();
     }
-    printf("\n");
+    
+    for (int i = 0; i < (sizeof(function_map) / sizeof(function_map[0])); i++) {
+        if (!strcmp(function_map[i].name, command)) {
+            function_map[i].func();
+            printf("\n");
+        }
+    }
 
     handle_command();
-
 }
 
 int main() {
-    printf("What would you like to do? (Type 'cmds' for a list of commands)\n\n");
+    printf("# What would you like to do? (Type 'cmds' for a list of commands)\n\n");
 
     handle_command();
     return 0;
