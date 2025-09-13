@@ -2,21 +2,15 @@
 #include <string.h>
 #include <stdlib.h>
 
-typedef struct {
-    char *name;
-    int grade_count;
-    int *grades;
-} Student;
+#include "types.h"
 
-typedef struct {
-    char *name;
-    char *info;
-    int args;
-} Command;
 
 int student_count;
 Student *students;
-const Command COMMANDS[7] = {
+
+const int COMMAND_COUNT = 7;
+const Command COMMANDS[] = {
+
     {"cmds", "- Shows list of commands", 0},
     {"exit", "- Exits", 0},
     {"list", "- Shows a list of students", 0},
@@ -26,8 +20,11 @@ const Command COMMANDS[7] = {
     {"remove_grade", "[student] [grade] - Removes a grade from a student", 2}
 };
 
-void print_commands() {
-    for (int i = 0; i < sizeof(COMMANDS)/sizeof(Command); i++) {
+
+
+
+void print_cmds() {
+    for (int i = 0; i < COMMAND_COUNT; i++) {
         printf("- %s %s\n", COMMANDS[i].name, COMMANDS[i].info);
     }
 }
@@ -54,6 +51,7 @@ void list() {
 }
 
 int student_exists(char *name) {
+
     for (int i = 0; i < student_count; i++) {
         if (strcmp(name, students[i].name) == 0) {
             return 1;
@@ -151,6 +149,8 @@ void remove_grade(char *name, int grade) {
                 printf("Grade not found.\n");
                 return;
             }
+
+
             int bytes = sizeof(int)*students[i].grade_count;
             int *tmp = malloc(bytes);
             memcpy(tmp, students[i].grades, bytes);
@@ -170,24 +170,28 @@ void remove_grade(char *name, int grade) {
     }
 }
 
-void get_command(char *command, char *student, int *grade) {
+// This is essentially not wrong but I would create Enum of commands
+// so this can return int
+//by this way it would be much simpler to find the right operation for the command
+void get_cmd(char *command, char *student, int *grade) {
+    // just parse the command here next time, other logic make in command handling
     scanf("%s", command);
 
     int found = 0;
-    Command current_command = {};
-    for (int i = 0; i < sizeof(COMMANDS)/sizeof(Command); i++) {
+    Command currect_command = {};
+    for (int i = 0; i < COMMAND_COUNT; i++) {
         if (strcmp(command, COMMANDS[i].name) == 0) {
-            current_command = COMMANDS[i];
+            currect_command = COMMANDS[i];
+
             found = 1;
             break;
         };
     }
     if (!found) {
         printf("\nDidn't find command, please try again.\n");
-        get_command(command, student, grade);
+        get_cmd(command, student, grade);
     }
-
-    for (int i = 0; i < current_command.args; i++) {
+    for (int i = 0; i < currect_command.args; i++) {
         switch (i) {
             case 0:
                 printf("\nWho would you like to affect?\n");
@@ -196,6 +200,7 @@ void get_command(char *command, char *student, int *grade) {
             case 1:
                 printf("\nWhat grade would you like to add or remove?\n");
                 scanf("%d", grade);
+                // maybe some printf that would confirm to the user that it works 
                 break;
             default:
                 break; 
@@ -203,16 +208,18 @@ void get_command(char *command, char *student, int *grade) {
     }
 }
 
-void handle_commands() {
+
+void handle_command() {
     char command[20];
+    // static 3:
     char student[20];
     int grade = -1;
-    get_command(command, student, &grade);
+    get_cmd(command, student, &grade);
     
     if (strcmp(command, "list") == 0) {
         list();
     } else if (strcmp(command, "cmds") == 0) {
-        print_commands();
+        print_cmds();
     } else if (strcmp(command, "exit") == 0) {
         return;
     } else if (strcmp(command, "add_student") == 0) {
@@ -225,11 +232,15 @@ void handle_commands() {
         remove_grade(student, grade);
     }
     printf("\n");
-    handle_commands();
+
+    // might not be essentially wrong, but stack overflow could happen
+    handle_command();
+
 }
 
 int main() {
     printf("What would you like to do? (Type 'cmds' for a list of commands)\n\n");
-    handle_commands();
+
+    handle_command();
     return 0;
 }
