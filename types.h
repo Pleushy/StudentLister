@@ -1,6 +1,6 @@
 typedef struct {
     char *name;
-    int gradeCount;
+    int grade_count;
     int *grades;
 } Student;
 

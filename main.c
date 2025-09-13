@@ -1,18 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-typedef struct {
-    char *name;
-    int grade_count;
-    int *grades;
-} Student;
-
-typedef struct {
-    char *name;
-    char *info;
-    int args;
-} Command;
+#include <types.h>
 
 int student_count;
 Student *students;
@@ -28,9 +17,6 @@ const Command COMMANDS[] = {
     {"add_grade", "[student] [grade] - Adds a grade to a student", 2},
     {"remove_grade", "[student] [grade] - Removes a grade from a student", 2}
 };
-
-
-
 
 void print_cmds() {
     for (int i = 0; i < COMMAND_COUNT; i++) {
